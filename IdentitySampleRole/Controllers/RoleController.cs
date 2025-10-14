@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos.User;
+using Application.Interfaces;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +20,7 @@ namespace IdentitySampleRole.Controllers
 
         //Get all roles
         [HttpGet()]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _roleService.GetRolesAsync();
@@ -35,22 +36,38 @@ namespace IdentitySampleRole.Controllers
         }
         //Add new roles
         [HttpPost("add")]
-        [Authorize(Roles = "Admin")]
+       // [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> AddRoles([FromBody] string[] roles)
         {
-            var created = await _roleService.AddRolesAsync(roles);
-            return Ok(created);
+            if (roles == null || roles.Length == 0)
+            {
+                return BadRequest("No roles provided.");
+            }
+            else
+            {
+                var result = await _roleService.AddRolesAsync(roles);
+                return Ok(result);
+            }
         }
 
         //Assign roles to a user by email
         [HttpPost("assign")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> AssignRoles([FromQuery] string email, [FromBody] string[] roles)
+        public async Task<ActionResult> AssignRoles([FromBody] AssignRoleDto assignRole)
         {
-            var success = await _roleService.AddUserRolesAsync(email, roles);
-            if (success)
-                return Ok("Roles assigned successfully.");
-
+            if (ModelState.IsValid)
+            {
+                // modelstate le user input DTO sanga match garxa ki gardaina bhanera check garxa
+                var success = await _roleService.AddUserRolesAsync(assignRole);
+                if (success)
+                {  // services bata aako response return garne
+                    return Ok(success);
+                }
+                else 
+                {      
+                    return BadRequest("Failed to assign roles.");
+                }
+            }
             return BadRequest("Failed to assign roles.");
         }
     }

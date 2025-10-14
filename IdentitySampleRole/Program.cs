@@ -11,12 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 //adding DbContext
-/* builder.Services.AddDbContext<ApplicationDbContext>(option =>
+builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
-    var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    option.UseSqlServer(ConnectionString, b => b.MigrationsAssembly("Infrastructure"));
+   var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+   option.UseSqlServer(ConnectionString, b => b.MigrationsAssembly("Infrastructure"));
 
-});  */ 
+});
 
 
 

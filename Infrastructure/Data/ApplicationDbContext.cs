@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
-    public class ApplicationDbContext :IdentityDbContext<ApplicationUser>
+    // Role, pani pass garna paryo
+    public class ApplicationDbContext :IdentityDbContext<ApplicationUser,Role,string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
