@@ -10,6 +10,6 @@ namespace Application.Dtos.User
     public class RoleDto
     {
         [Required]
-        public required string Name { get; set; }
+        public required string RoleName { get; set; } 
     }
 }

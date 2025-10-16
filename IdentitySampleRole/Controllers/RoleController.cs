@@ -18,57 +18,71 @@ namespace IdentitySampleRole.Controllers
             _roleService = roleService;
         }
 
-        //Get all roles
-        [HttpGet()]
-        //[Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("create-role")]
+        public async Task<IActionResult> CreateRole([FromBody] RoleDto role)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _roleService.CreateRoleAsync(role.RoleName);
+                if (result.Success)
+                {
+                    return Ok(result.Data);
+                }
+                else
+                {
+                    return BadRequest(result.Message);
+                }
+            }
+
+            return BadRequest("Invalid model state.");
+        }
+
+        [HttpPost]
+        [Route("add-roles")]
+        public async Task<IActionResult> AddRoles([FromBody] string[] roles)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _roleService.AddRolesAsync(roles);
+                if (result.Success)
+                {
+                    return Ok(result.Data);
+                }
+                else
+                {
+                    return BadRequest(result.Message);
+                }
+            }
+            return BadRequest("Invalid model state.");
+        }
+
+        [HttpPost]
+        [Route("assign-roles")]
+        public async Task<IActionResult> AssignRoles([FromBody] AssignRoleDto assignRoleDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _roleService.AddUserRolesAsync(assignRoleDto);
+                if (result.Success) 
+                {
+                    return Ok("Roles assigned successfully.");
+                }
+                else
+                {
+                    return BadRequest(result.Message); 
+                }
+            }
+            return BadRequest("Invalid model state.");
+        }
+
+        [HttpGet]
+        [Route("get-roles")]
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _roleService.GetRolesAsync();
             return Ok(roles);
         }
-        
-        [HttpGet("user/{email}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<List<string>>> GetUserRoles(string email)
-        {
-            var userRoles = await _roleService.GetUserRolesAsync(email);
-            return Ok(userRoles);
-        }
-        //Add new roles
-        [HttpPost("add")]
-       // [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<List<string>>> AddRoles([FromBody] string[] roles)
-        {
-            if (roles == null || roles.Length == 0)
-            {
-                return BadRequest("No roles provided.");
-            }
-            else
-            {
-                var result = await _roleService.AddRolesAsync(roles);
-                return Ok(result);
-            }
-        }
 
-        //Assign roles to a user by email
-        [HttpPost("assign")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> AssignRoles([FromBody] AssignRoleDto assignRole)
-        {
-            if (ModelState.IsValid)
-            {
-                // modelstate le user input DTO sanga match garxa ki gardaina bhanera check garxa
-                var success = await _roleService.AddUserRolesAsync(assignRole);
-                if (success)
-                {  // services bata aako response return garne
-                    return Ok(success);
-                }
-                else 
-                {      
-                    return BadRequest("Failed to assign roles.");
-                }
-            }
-            return BadRequest("Failed to assign roles.");
-        }
     }
 }

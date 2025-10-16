@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Application.Response.Role
 {
-    public class AddRoleResponse
+    public class CreateRoleResponse
     {
-        public required List<string> Roles { get; set; } 
+        public string RoleId { get; set; } 
+        public string RoleName { get; set; } 
     }
 }

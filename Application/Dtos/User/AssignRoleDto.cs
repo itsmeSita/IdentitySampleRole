@@ -8,7 +8,7 @@ namespace Application.Dtos.User
 {
     public class AssignRoleDto
     {
-        public string Email { get; set; }
-        public List<string> Roles { get; set; }
+        public required string Email { get; set; } 
+        public required List<string> Roles { get; set; } 
     }
 }

@@ -12,11 +12,11 @@ namespace Application.Interfaces
 {
     public interface IRoleService
     {
-        Task<List<Role>> GetRolesAsync();
-        Task<List<string>> GetUserRolesAsync(string email);
+        Task<ServiceResponse<CreateRoleResponse>> CreateRoleAsync(string roleName);
 
         // Service response ma aafu chai chaiyeko response pathaune Response folder ma banayera
         Task<ServiceResponse<AddRoleResponse>> AddRolesAsync(string[] roles);
-        Task<bool> AddUserRolesAsync(AssignRoleDto assignRoleDto);
+        Task <ServiceResponse<AddRoleResponse>> AddUserRolesAsync(AssignRoleDto assignRoleDto);
+        Task<List<Role>> GetRolesAsync();
     }
 }

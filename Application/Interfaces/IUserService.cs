@@ -1,4 +1,6 @@
 ﻿using Application.Dtos.User;
+using Application.Response;
+using Application.Response.User;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ namespace Application.Interfaces
 {
     public interface IUserService
     {
-       Task<string> RegisterAsync(RegisterDto dto);
-       Task<string> LoginAsync(LoginDto dto);
+       Task<ServiceResponse<RegisterResponse>> RegisterAsync(RegisterDto registerDto , string role);
+
     }
 }

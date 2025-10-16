@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,20 +26,39 @@ namespace Application.Services
             _roleManager = roleManager;
 
         }
-        // Get all roles
-        public async Task<List<Role>> GetRolesAsync()
-        {
-            return await _roleManager.Roles.ToListAsync();
-        }
-        // Get roles of a user by email
-        public async Task<List<string>> GetUserRolesAsync(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                throw new Exception("User not found.");
 
-            var roles = await _userManager.GetRolesAsync(user);
-            return roles.ToList();
+        // create role if not exist
+
+        public async Task<ServiceResponse<CreateRoleResponse>> CreateRoleAsync(string roleName)
+        {
+            bool roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (roleExists)
+            {
+                return new ServiceResponse<CreateRoleResponse>
+                {
+                    Success = false,
+                    Message = $"{roleName} already exists.",
+                };
+            }
+            var role = new Role { Name = roleName };
+            var createdRole = await _roleManager.CreateAsync(role);
+            if (createdRole.Succeeded)
+            {
+                return new ServiceResponse<CreateRoleResponse>
+                {
+                    Success = true,
+                    Message = $"{roleName} created successfully.",
+                    Data = new CreateRoleResponse { RoleName = roleName }
+                };
+            }
+            else
+            {
+                return new ServiceResponse<CreateRoleResponse>
+                {
+                    Success = false,
+                    Message = $"Failed to create role: {roleName}.",
+                };
+            }
         }
 
         // Add new roles
@@ -45,6 +66,7 @@ namespace Application.Services
         {
             var createdRoles = new List<string>();
             var roleExisting = new List<string>();
+
             foreach (var roleName in roles)
             {
                 if (!await _roleManager.RoleExistsAsync(roleName))
@@ -59,10 +81,10 @@ namespace Application.Services
                     else
                     {
                         // unsuccessful vako case ni return huna paryo 
-                       roleExisting.Add(roleName);
+                        roleExisting.Add(roleName);
                     }
                 }
-                else 
+                else
                 {
                     // role exist vako case ma k garne vanera garauna paryo
                     return new ServiceResponse<AddRoleResponse>
@@ -70,7 +92,7 @@ namespace Application.Services
                         Success = false,
                         Message = $"Failed to create role: {roleName}",
                         Data = new AddRoleResponse
-                                { Roles = roleExisting }
+                        { Roles = roleExisting }
                     };
                 }
             }
@@ -83,25 +105,85 @@ namespace Application.Services
             };
         }
 
-        // Assign roles to a user by email
-        public async Task<bool> AddUserRolesAsync(AssignRoleDto assignRoleDto)
+        // Assign roles to user
+
+        public async Task<ServiceResponse<AddRoleResponse>> AddUserRolesAsync(AssignRoleDto assignRoleDto)
         {
+            // Find the user by email
             var user = await _userManager.FindByEmailAsync(assignRoleDto.Email);
             if (user == null)
-                throw new Exception("User not found.");
+            {
+                return new ServiceResponse<AddRoleResponse>
+                {
+                    Success = false,
+                    Message = "User not found.",
+                    Data = null
+                };
+            }
 
-            // Ensure roles exist before assigning
+            var rolesCreated = new List<string>();
+            var rolesExisting = new List<string>();
+            var rolesFailed = new List<string>();
+
+            // Ensure all roles exist
             foreach (var roleName in assignRoleDto.Roles)
             {
                 if (!await _roleManager.RoleExistsAsync(roleName))
-                    await _roleManager.CreateAsync(new Role { Name = roleName });
-                // role exist gardena vane k Garne handle garna paryo 
+                {
+                    var createResult = await _roleManager.CreateAsync(new Role { Name = roleName });
+                    if (createResult.Succeeded)
+                        rolesCreated.Add(roleName);
+                    else
+                        rolesFailed.Add(roleName);
+                }
+                else
+                {
+                    rolesExisting.Add(roleName);
+                }
             }
 
-            var result = await _userManager.AddToRolesAsync(user, assignRoleDto.Roles);
-            // yeha ni check garna paryo succeed vaxa ki nai 
-            //ani appropriate response pathauna paryo
-            return result.Succeeded;
+           
+            if (rolesFailed.Count > 0)
+            {
+                return new ServiceResponse<AddRoleResponse>
+                {
+                    Success = false,
+                    Message = $"Failed to create roles: {rolesFailed}",
+                    Data = new AddRoleResponse { Roles = rolesFailed }
+                };
+            }
+
+           
+            var assignResult = await _userManager.AddToRolesAsync(user, assignRoleDto.Roles);
+
+            if (!assignResult.Succeeded)
+            {
+                return new ServiceResponse<AddRoleResponse>
+                {
+                    Success = false,
+                    Message = $"Failed to assign roles: {assignResult}",
+                    Data = new AddRoleResponse { Roles = assignRoleDto.Roles.ToList() }
+                };
+            }
+
+            
+            return new ServiceResponse<AddRoleResponse>
+            {
+                Success = true,
+                Message = $"Roles assigned successfully to {assignRoleDto.Email}.",
+                Data = new AddRoleResponse { Roles = assignRoleDto.Roles.ToList() }
+            };
+        }
+
+        public async Task<List<Role>> GetRolesAsync()
+        {
+            return await _roleManager.Roles.ToListAsync();
         }
     }
 }
+
+      
+
+      
+
+

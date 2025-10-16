@@ -15,18 +15,24 @@ namespace IdentitySampleRole.Controllers
             _userService = userService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        [HttpPost]
+        [Route("register/{role}")]
+        public async Task<IActionResult> Register(RegisterDto registerDto, string role)
         {
-            var result = await _userService.RegisterAsync(dto);
-            return Ok(result);
-        }
+            if (ModelState.IsValid)
+            {
+                var result = await _userService.RegisterAsync(registerDto, role);
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
-        {
-            var result = await _userService.LoginAsync(dto);
-            return Ok(result);
+                if (result.Success) 
+                {
+                    return Ok(result.Data); 
+                }
+                else
+                {
+                    return BadRequest(result.Message); 
+                }
+            }
+            return BadRequest("Invalid model state.");
         }
     }
 }
