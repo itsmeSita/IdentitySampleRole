@@ -1,4 +1,5 @@
-﻿using Domain.Entities.User;
+﻿using Domain.Entities;
+using Domain.Entities.User;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,18 +11,18 @@ using System.Threading.Tasks;
 namespace Infrastructure.Data
 {
     // Role, pani pass garna paryo
-    public class ApplicationDbContext :IdentityDbContext<ApplicationUser,Role,string>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            
         }
 
+        public DbSet<Product> Products { get; set; }
+       
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Customize the ASP.NET Identity model and override the defaults if needed.
            
         }
 

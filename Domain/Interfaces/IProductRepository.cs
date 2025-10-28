@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IProductRepository :IGenericRepository<Product>
     {
-        IUserRepository Users { get; }
-        IGenericRepository<Product>  Products { get; }
-        Task<int> SaveAsync();
+
     }
 }
