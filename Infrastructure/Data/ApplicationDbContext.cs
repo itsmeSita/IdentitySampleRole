@@ -18,12 +18,17 @@ namespace Infrastructure.Data
         }
 
         public DbSet<Product> Products { get; set; }
-       
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
+        public DbSet<Category> Categories { get; set; } 
 
-           
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId);
+                
+
+            base.OnModelCreating(modelBuilder); 
         }
 
 

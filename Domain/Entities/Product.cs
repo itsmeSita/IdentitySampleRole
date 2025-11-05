@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Product
+    public class Product 
     {
-        public int id { get; set; }
-        public required string Name { get; set; }
-        public decimal price { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
 
+        // Foreign key for Category
+        public int CategoryId { get; set; }
+        public virtual Category Category { get; set; } = null!;
     }
-       
+
 }

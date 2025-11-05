@@ -14,6 +14,16 @@ namespace Infrastructure.Repositories
     {
         public ProductRepository(ApplicationDbContext context) : base(context)
         {
+            
+        }
+        public async Task<IEnumerable<Product>> GetProductsWithCategoryAsync()
+        {
+            
+           return await _context.Products
+                    .Include(p => p.Category)
+                    .ToListAsync();
+
+           
         }
     }
 }

@@ -1,10 +1,12 @@
+using Application.Mapper;
 using AutoMapper;
+using Domain.Interfaces;
+using IdentitySampleRole.StartUp;
 using Infrastructure;
 using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using IdentitySampleRole.StartUp;
-using Application.Mapper;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,7 @@ builder.Services.AddInternalDependencies(builder.Configuration);
 
 // Existing code remains unchanged
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Services;
+using Domain.Entities;
 using Domain.Entities.User;
 using Domain.Interfaces;
 using Infrastructure.Data;
@@ -39,7 +40,8 @@ namespace Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
-           services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductService , ProductService>();
+
 
             return services;
         }

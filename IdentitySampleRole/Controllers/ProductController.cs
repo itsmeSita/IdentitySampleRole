@@ -14,47 +14,75 @@ namespace IdentitySampleRole.Controllers
         {
             _ProductService = productService;
         }
+
         [HttpGet]
-        [Route("GetAllProduct")]
-        public async Task<IActionResult> GetAllProduct()
+        [Route("GetAllProducts")]
+        public async Task<IActionResult> GetAllProducts()
         {
-            var products = await _ProductService.GetAllAsync();
+            var products = await _ProductService.GetAllProductsAsync();
             return Ok(products);
         }
+
 
         [HttpGet]
         [Route("GetProductById/{id}")]
         public async Task<IActionResult> GetProductById(int id)
         {
             var product = await _ProductService.GetByIdAsync(id);
-            if (product == null)
+            if (product.Data == null)
             {
-                return NotFound();
+                return NotFound(product.Message);
             }
             return Ok(product);
         }
 
         [HttpPost]
-        [Route("AddProduct")]
-        public async Task<IActionResult> AddProduct([FromBody] ProductDto productDto)
+        [Route("CreateProduct")]
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto createProductDto)
         {
-            var product = await _ProductService.AddAsync(productDto);
-            return CreatedAtAction(nameof(GetProductById), new { id = product.id }, product);
+            if (ModelState.IsValid)
+            {
+                var result = await _ProductService.CreateProductAsync(createProductDto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result.Message);
+            }
+            return BadRequest("Invalid model state.");
         }
+
 
         [HttpPut]
         [Route("UpdateProduct/{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] CreateProductDto updateProductDto)
         {
-            await _ProductService.UpdateAsync(id, productDto);
-            return NoContent();
+            if (ModelState.IsValid)
+            {
+                var result = await _ProductService.UpdateProductAsync(id, updateProductDto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result.Message);
+            }
+            return BadRequest("Invalid model state.");
         }
+
         [HttpDelete]
         [Route("DeleteProduct/{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            await _ProductService.DeleteAsync(id);
-            return NoContent();
+            if (ModelState.IsValid)
+            {
+                var result = await _ProductService.DeleteProductAsync(id);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result.Message);
+            }
+            return BadRequest();
         }
     }
-}
+ }

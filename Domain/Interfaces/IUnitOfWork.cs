@@ -9,8 +9,9 @@ namespace Domain.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        IUserRepository Users { get; }
-        IGenericRepository<Product>  Products { get; }
+        IUserRepository Users { get; } 
+        IGenericRepository<Product> Products { get; }
+        IGenericRepository<Category> Categories { get; }
         Task<int> SaveAsync();
     }
 }
